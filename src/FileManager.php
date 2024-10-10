@@ -273,6 +273,15 @@ class FileManager
      */
     public function rename($disk, $newName, $oldName): array
     {
+        if(!$this->allowTypes($newName)){
+            return [
+                'result' => [
+                    'status'  => 'error',
+                    'message' => 'Failed to rename the file because extension is not allowed',
+                ],
+            ];
+        }
+
         Storage::disk($disk)->move($oldName, $newName);
 
         return [
@@ -414,6 +423,15 @@ class FileManager
      */
     public function createFile($disk, $path, $name): array
     {
+        if(!$this->allowTypes($name)){
+            return [
+                'result' => [
+                    'status'  => 'error',
+                    'message' => "Failed to create file because extension is not allowed",
+                ],
+            ];
+        }
+
         $path = $this->newPath($path, $name);
 
         if (Storage::disk($disk)->exists($path)) {
@@ -484,5 +502,12 @@ class FileManager
         }
 
         return Storage::disk($disk)->response($path, $filename, ['Accept-Ranges' => 'bytes']);
+    }
+
+    private function allowTypes($name) {
+        $ext = explode('.',$name);
+        $ext = end($ext);
+
+        return $this->configRepository->getAllowFileTypes() && !in_array($ext, $this->configRepository->getAllowFileTypes()) ? false : true;
     }
 }
