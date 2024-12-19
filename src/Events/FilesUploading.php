@@ -65,6 +65,7 @@ class FilesUploading
                 'name'      => $file->getClientOriginalName(),
                 'path'      => $this->path.'/'.$file->getClientOriginalName(),
                 'extension' => $file->extension(),
+                'size'      => $file->getSize(),
             ];
         }, $this->files);
     }
